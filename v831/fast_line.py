@@ -2,14 +2,14 @@
 import cv2
 import numpy as np
 
-# ³õÊ¼»¯²ÎÊı
-THRESHOLD = 100  # »Ò¶ÈÍ¼ÏñµÄãĞÖµ
+# åˆå§‹åŒ–å‚æ•°
+THRESHOLD = 100  # ç°åº¦å›¾åƒçš„é˜ˆå€¼
 roi = [(0, 100, 32, 40), (32, 100, 32, 40), (64, 100, 32, 40), (96, 100, 32, 40),
        (128, 100, 32, 40), (160, 100, 32, 40), (192, 100, 32, 40), (224, 100, 32, 40),
-       (256, 100, 32, 40), (288, 100, 32, 40)]  # ¶¨ÒåROIÇøÓò
-center_indices = [4, 5]  # ÖĞĞÄÇøÓòµÄË÷Òı
+       (256, 100, 32, 40), (288, 100, 32, 40)]  # å®šä¹‰ROIåŒºåŸŸ
+center_indices = [4, 5]  # ä¸­å¿ƒåŒºåŸŸçš„ç´¢å¼•
 
-# ³õÊ¼»¯ÉãÏñÍ·
+# åˆå§‹åŒ–æ‘„åƒå¤´
 cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
@@ -19,52 +19,52 @@ while True:
     if not ret:
         continue
 
-    # ×ª»»Îª»Ò¶ÈÍ¼Ïñ
+    # è½¬æ¢ä¸ºç°åº¦å›¾åƒ
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     _, binary = cv2.threshold(gray, THRESHOLD, 255, cv2.THRESH_BINARY)
 
     error = None
-    any_region_triggered = False  # ÊÇ·ñÓĞÇøÓò±»´¥·¢
+    any_region_triggered = False  # æ˜¯å¦æœ‰åŒºåŸŸè¢«è§¦å‘
 
     for idx, r in enumerate(roi):
         x, y, w, h = r
         roi_img = binary[y:y+h, x:x+w]
 
-        # ¼ÆËã°×É«ÏñËØµÄ±ÈÀı
+        # è®¡ç®—ç™½è‰²åƒç´ çš„æ¯”ä¾‹
         white_percentage = np.mean(roi_img)
 
-        # Èç¹û°×É«ÏñËØµÄ±ÈÀı´óÓÚãĞÖµ£¬ÔòÈÏÎª¸ÃÇøÓò±»´¥·¢
+        # å¦‚æœç™½è‰²åƒç´ çš„æ¯”ä¾‹å¤§äºé˜ˆå€¼ï¼Œåˆ™è®¤ä¸ºè¯¥åŒºåŸŸè¢«è§¦å‘
         if white_percentage > 127:
             any_region_triggered = True
             center_x = x + w // 2
             center_y = y + h // 2
             cv2.drawMarker(frame, (center_x, center_y), (0, 255, 0), markerType=cv2.MARKER_CROSS, thickness=2)
 
-            # ¼ÆËãÎó²îÖµ
-            if idx < center_indices[0]:  # ×ó²àÇøÓò
+            # è®¡ç®—è¯¯å·®å€¼
+            if idx < center_indices[0]:  # å·¦ä¾§åŒºåŸŸ
                 current_error = idx - center_indices[0]
-            elif idx > center_indices[1]:  # ÓÒ²àÇøÓò
+            elif idx > center_indices[1]:  # å³ä¾§åŒºåŸŸ
                 current_error = idx - center_indices[1]
-            else:  # ÖĞĞÄÇøÓò
+            else:  # ä¸­å¿ƒåŒºåŸŸ
                 current_error = 0
 
-            # ¸üĞÂÎó²îÖµ
+            # æ›´æ–°è¯¯å·®å€¼
             if error is None or abs(current_error) > abs(error):
                 error = current_error
 
-    # Èç¹ûÃ»ÓĞÈÎºÎÇøÓò±»´¥·¢£¬Ôò½«Îó²îÖµÉèÎª-4
+    # å¦‚æœæ²¡æœ‰ä»»ä½•åŒºåŸŸè¢«è§¦å‘ï¼Œåˆ™å°†è¯¯å·®å€¼è®¾ä¸º-4
     if not any_region_triggered:
         error = -4
 
     print("Error: %d" % error)
 
-    # ÏÔÊ¾Í¼Ïñ
+    # æ˜¾ç¤ºå›¾åƒ
     cv2.imshow('frame', frame)
 
-    # °´ÏÂ 'q' ¼üÍË³ö
+    # æŒ‰ä¸‹ 'q' é”®é€€å‡º
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-# ÊÍ·ÅÉãÏñÍ·²¢¹Ø±ÕËùÓĞ´°¿Ú
+# é‡Šæ”¾æ‘„åƒå¤´å¹¶å…³é—­æ‰€æœ‰çª—å£
 cap.release()
 cv2.destroyAllWindows()
