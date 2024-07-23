@@ -3,8 +3,8 @@ import time
 import serial
 
 red = (10, 100, 30, 127, -37, 127) #红色
-data = bytearray([0x5C,0x00,0x00,0xA5])
-GET_READY = bytearray([0x5D,0x01,0x01,0xA5])
+data = bytearray([0x5C,0x00,0x00,0x00,0x00,0xA5])
+GET_READY = bytearray([0x5D,0x01,0x01,0x00,0x00,0xA5])
 ser = serial.Serial("/dev/ttyS1",115200,timeout=0.03)
 ser.write(GET_READY)
 
@@ -12,7 +12,7 @@ cmd = 0
 ready = 1
 
 send_num = None
-NUM_PACK = bytearray([0x5B,0x00,0x00,0xA5])
+NUM_PACK = bytearray([0x5B,0x00,0x00,0x00,0x00,0xA5])
 
 class Number_recognition:
     labels = ["1", "2", "3", "4", "5", "6", "7", "8"]
@@ -72,30 +72,43 @@ while True:
         img.draw_circle(line["cx"], line["cy"], 4,
                         color=(255, 255, 255), thickness=1)
         rotation = line['rotation']* 180 / 3.14 
-        if line:
-                if rotation > 90:
-                    error1 = 180 - rotation
-                    if error1 > 5 and error1 < 30:
-                        data[1] = 0x00
-                        data[2] = int(error1)
-                    elif error1 > 30:
-                        data[1] = 0x00
-                        error1 = 30
-                        data[2] = int(error1)
-                elif rotation < 90:
-                    error1 = rotation
-                    if error1 > 5 and error1 < 30:
+        error2 = line["cx"] - 120   
+        if line['pixels'] > 800 and line['pixels'] < 18000:
+                if rotation < 0:
+                    error1 = 90 + rotation
+                    if error1 > 1 and error1 < 10:
                         data[1] = 0x01
                         data[2] = int(error1)
-                    elif error1 > 30:
+                    elif error1 > 10:
                         data[1] = 0x01
-                        error1 = 30
+                        error1 = 10
                         data[2] = int(error1)
+                    #print(error1)
+                elif rotation > 0:
+                    error1 = 90 - rotation
+                    if error1 > 1 and error1 < 10:
+                        data[1] = 0x00
+                        data[2] = int(error1)
+                    elif error1 > 10:
+                        data[1] = 0x00
+                        error1 = 10
+                        data[2] = int(error1)
+                    #print(error1)
+                
                 else:
                     data[1] = 0x00
                     data[2] = 0x00
+                
+                if error2 > 0:
+                    data[3] = 0x01
+                    data[4] = int(error2)
+                    #print(error2)
+                elif error2 < 0:
+                    data[3] = 0x00
+                    data[4] = int(-error2)
+                    #print(error2)
         ser.write(data)
-        display.show(img.rotate(180, adjust=0))
+        display.show(img)
     elif cmd ==3 and ready == 1:
         img = camera.capture().rotate(180, adjust=0)
         AI_img = img.copy().resize(224, 224)
