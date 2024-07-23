@@ -97,7 +97,7 @@ while True:
         ser.write(data)
         display.show(img.rotate(180, adjust=0))
     elif cmd ==3 and ready == 1:
-        img = camera.capture()
+        img = camera.capture().rotate(180, adjust=0)
         AI_img = img.copy().resize(224, 224)
         out = number_recognition.m.forward(AI_img.tobytes(), quantize=True, layout="hwc")
         boxes, probs = number_recognition.yolo2_decoder.run(out, nms=0.3, threshold=0.5, img_size=(240, 240))
