@@ -54,7 +54,6 @@ while True:
                 cross_pp[2] = 0x00
                 cross_pp[3] = 0x01
                 cross_pp[4] = 0x00
-                valid_blobs = []
                 #print(1)
                 ser.write(cross_pp)
             #img.draw_rect(blob[0], blob[1], blob[2], blob[3], image.COLOR_GREEN)
