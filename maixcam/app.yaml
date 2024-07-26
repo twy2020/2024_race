@@ -1,0 +1,8 @@
+id: c11278
+name: num&linie
+version: 1.0.3
+author: teng
+icon: app.png
+desc: 巡红色线以及数字识别，以及获取数字在屏幕中的位置,增加停车点识别
+files:
+  - line_num.py
