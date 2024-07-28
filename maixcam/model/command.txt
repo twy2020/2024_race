@@ -1,0 +1,12 @@
+1、进入tpu转换docker
+docker start tpu-env && docker attach tpu-env
+2、删除上一次的.sh和.onnx文件
+find . -type f \( -name "*.sh" -o -name "*.onnx" \) -exec rm -f {} \;
+3、复制.sh和.onnx文件到docker
+find . -type f \( -name "*.onnx" -o -name "*.sh" \) -exec docker cp {} 5583eed9e111:/workspace/ \;
+4、执行转换脚本
+chmod +x convert_yolov5_to_cvimodelsh && ./convert_yolov5_to_cvimodel.sh
+5、从docker把转换好的.cvimodel文件传回VM_share
+docker cp 5583eed9e111:/workspace/workspace/model_24072801_int8.cvimodel /mnt/hgfs/VM_share/model_24072801.cvimodel
+
+
