@@ -1,0 +1,2 @@
+1、Axera-Pi终端联网
+nmtui
